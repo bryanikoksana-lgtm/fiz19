@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Інтерактивна лабораторія: Магнітне поле Землі</title>
+<style>
+:root{--navy:#12345a;--blue:#1769aa;--sky:#eaf6ff;--cyan:#36bde8;--ink:#18324b;--green:#16845b;--gold:#f2b84b}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#eaf6ff,#f8fbff 55%,#eaf4fb);color:var(--ink)}
+header{background:linear-gradient(120deg,#102d50,#1769aa);color:white;padding:26px 18px;text-align:center}
+header h1{margin:0 0 8px;font-size:clamp(24px,4vw,36px)} header p{margin:0;color:#dcefff}
+.wrap{max-width:1120px;margin:18px auto;padding:0 14px 28px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.tab{border:0;border-radius:12px;padding:12px 16px;background:#d6eafb;color:#16436a;font-weight:700;cursor:pointer;flex:1;min-width:180px}
+.tab.active,.tab:hover{background:var(--blue);color:#fff}
+.panel{display:none;background:white;border-radius:18px;padding:clamp(14px,3vw,24px);box-shadow:0 8px 26px #12345a16;margin-bottom:16px}
+.panel.active{display:block}
+h2{margin:0 0 8px;color:#124b7d} .lead{line-height:1.5;margin:0 0 16px}
+.stage{background:linear-gradient(180deg,#f7fcff,#e9f5ff);border:1px solid #cfe6f7;border-radius:14px;overflow:hidden}
+svg{display:block;width:100%;height:auto;min-height:230px}
+.controls{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0;align-items:center}
+.control{flex:1;min-width:200px;background:#f2f8fd;padding:12px;border-radius:12px}
+.control label{display:flex;justify-content:space-between;gap:10px;font-weight:700;margin-bottom:8px}
+input[type=range]{width:100%;accent-color:var(--blue)}
+button.action{border:0;border-radius:10px;background:var(--blue);color:white;font-weight:700;padding:11px 15px;cursor:pointer}
+button.action.secondary{background:#e0effb;color:#124b7d}
+button.action:hover{filter:brightness(.95)}
+.note{padding:12px 14px;border-left:4px solid var(--cyan);background:#eff9ff;border-radius:8px;line-height:1.5;margin-top:12px}
+.result{font-weight:700;color:#145c44;margin-top:10px;min-height:24px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;margin-top:8px}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px}
+.quiz-q{padding:13px 0;border-bottom:1px solid #e4edf4}.quiz-q p{font-weight:700;margin:0 0 8px}
+.quiz-q label{display:block;padding:5px 0;cursor:pointer}
+.small{font-size:13px;color:#59758b}
+@media(max-width:600px){.tab{min-width:100%;}.control{min-width:100%}svg{min-height:190px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🧲 Інтерактивна лабораторія магнетизму</h1>
+  <p>Магнітна індукція • Лінії магнітного поля • Магнітне поле Землі</p>
+</header>
+<main class="wrap">
+  <nav class="tabs" aria-label="Розділи симулятора">
+    <button class="tab active" data-tab="induction">1. Магнітна індукція</button>
+    <button class="tab" data-tab="lines">2. Лінії магнітного поля</button>
+    <button class="tab" data-tab="earth">3. Магнітне поле Землі</button>
+    <button class="tab" data-tab="quiz">4. Перевір себе</button>
+  </nav>
+
+  <section class="panel active" id="induction">
+    <h2>Дослід 1. Магнітна індукція</h2>
+    <p class="lead">Магнітна індукція <b>B</b> — векторна фізична величина, що характеризує магнітне поле. Пересувай компас і змінюй умовну силу поля, щоб побачити, як змінюється стрілка.</p>
+    <div class="stage"><svg id="inductionSvg" viewBox="0 0 800 360" role="img" aria-label="Магніт і компас у магнітному полі"></svg></div>
+    <div class="controls">
+      <div class="control"><label for="strength">Умовна сила поля <span id="strengthVal">60%</span></label><input id="strength" type="range" min="20" max="100" value="60"></div>
+      <div class="control"><label for="compassX">Положення компаса по горизонталі <span id="xVal">400</span></label><input id="compassX" type="range" min="100" max="700" value="400"></div>
+      <div class="control"><label for="compassY">Положення компаса по вертикалі <span id="yVal">115</span></label><input id="compassY" type="range" min="70" max="300" value="115"></div>
+    </div>
+    <div class="controls"><button class="action" id="toggleIndLines">Приховати лінії поля</button><button class="action secondary" id="resetInd">Скинути дослід</button></div>
+    <div class="note" id="inductionNote">Стрілка компаса повертається вздовж напрямку магнітного поля. Поза магнітом лінії умовно виходять із N та входять у S.</div>
+    <div class="legend"><span><i class="dot" style="background:#e74c3c"></i>Північний кінець стрілки</span><span><i class="dot" style="background:#1769aa"></i>Південний кінець стрілки</span></div>
+  </section>
+
+  <section class="panel" id="lines">
+    <h2>Дослід 2. Досліджуємо силові лінії</h2>
+    <p class="lead">Увімкни або вимкни силові лінії та зміни відстань між полюсами магнітів. Пам’ятай: силові лінії не перетинаються, а їхня густина умовно показує, де поле сильніше.</p>
+    <div class="stage"><svg id="linesSvg" viewBox="0 0 800 360" role="img" aria-label="Силові лінії між магнітами"></svg></div>
+    <div class="controls">
+      <div class="control"><label for="gap">Відстань між магнітами <span id="gapVal">100 px</span></label><input id="gap" type="range" min="60" max="190" value="100"></div>
+      <div class="control"><label for="lineCount">Кількість ліній <span id="countVal">8</span></label><input id="lineCount" type="range" min="4" max="12" value="8"></div>
+    </div>
+    <div class="controls"><button class="action" id="toggleLines">Приховати силові лінії</button><button class="action secondary" id="flipMagnet">Перевернути правий магніт</button></div>
+    <div class="note" id="linesNote">Зараз навпроти різнойменні полюси N і S: лінії з’єднують полюси, магнітне поле між ними помітно сильніше.</div>
+  </section>
+
+  <section class="panel" id="earth">
+    <h2>Дослід 3. Магнітне поле Землі</h2>
+    <p class="lead">Земля поводиться приблизно як великий магніт. Поруч із географічним Північним полюсом розташована область магнітного південного полюса. Компас орієнтується за місцевим напрямком магнітного поля.</p>
+    <div class="stage"><svg id="earthSvg" viewBox="0 0 800 420" role="img" aria-label="Земля з магнітними лініями та компасом"></svg></div>
+    <div class="controls">
+      <div class="control"><label for="earthX">Положення компаса по горизонталі <span id="earthXVal">650</span></label><input id="earthX" type="range" min="90" max="710" value="650"></div>
+      <div class="control"><label for="earthY">Положення компаса по вертикалі <span id="earthYVal">205</span></label><input id="earthY" type="range" min="55" max="365" value="205"></div>
+    </div>
+    <div class="controls"><button class="action" id="toggleEarthLines">Приховати лінії поля</button><button class="action secondary" id="resetEarth">Повернути компас на початкове місце</button></div>
+    <div class="note" id="earthNote">Пересувай компас навколо Землі. Червоний кінець стрілки показує напрямок магнітного поля в цій точці (у спрощеній моделі).</div>
+  </section>
+
+  <section class="panel" id="quiz">
+    <h2>Перевір себе</h2>
+    <p class="lead">Обери одну правильну відповідь у кожному завданні та натисни «Перевірити».</p>
+    <form id="quizForm">
+      <div class="quiz-q"><p>1. Якою літерою позначають магнітну індукцію?</p><label><input type="radio" name="q1" value="a"> A</label><label><input type="radio" name="q1" value="b"> B</label><label><input type="radio" name="q1" value="c"> N</label></div>
+      <div class="quiz-q"><p>2. Який напрямок силових ліній поза магнітом?</p><label><input type="radio" name="q2" value="a"> Від S до N</label><label><input type="radio" name="q2" value="b"> Від N до S</label><label><input type="radio" name="q2" value="c"> Вони не мають напрямку</label></div>
+      <div class="quiz-q"><p>3. Що показує напрямок магнітного поля в точці?</p><label><input type="radio" name="q3" value="a"> Північний кінець магнітної стрілки</label><label><input type="radio" name="q3" value="b"> Колір корпусу компаса</label><label><input type="radio" name="q3" value="c"> Довжина стрілки</label></div>
+      <div class="quiz-q"><p>4. Чому компас повертається біля Землі?</p><label><input type="radio" name="q4" value="a"> Через силу тяжіння</label><label><input type="radio" name="q4" value="b"> Через магнітне поле Землі</label><label><input type="radio" name="q4" value="c"> Через сонячне світло</label></div>
+      <div class="quiz-q"><p>5. У якій одиниці SI вимірюють магнітну індукцію?</p><label><input type="radio" name="q5" value="a"> Тесла (Тл)</label><label><input type="radio" name="q5" value="b"> Ньютон (Н)</label><label><input type="radio" name="q5" value="c"> Ват (Вт)</label></div>
+      <div class="controls"><button type="button" class="action" id="checkQuiz">Перевірити відповіді</button><button type="reset" class="action secondary" id="resetQuiz">Спробувати ще раз</button></div>
+      <div class="result" id="quizResult" aria-live="polite"></div>
+    </form>
+  </section>
+  <p class="small">Навчальна модель: лінії та напрямки показані схематично; реальне магнітне поле Землі складніше й змінюється з часом.</p>
+</main>
+<script>
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs={},txt=''){const n=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));if(txt)n.textContent=txt;return n}
+function addText(svg,x,y,text,size=16,fill='#18324b',weight='normal',anchor='middle'){svg.append(el('text',{x,y,'font-size':size,fill,'font-weight':weight,'text-anchor':anchor,'font-family':'Arial, sans-serif'},text))}
+function addLine(svg,x1,y1,x2,y2,color='#2c87c8',width=2,extra={}){svg.append(el('line',{x1,y1,x2,y2,stroke:color,'stroke-width':width,'stroke-linecap':'round',...extra}))}
+function arrow(svg,x1,y1,x2,y2,color='#2c87c8',width=2){addLine(svg,x1,y1,x2,y2,color,width);const a=Math.atan2(y2-y1,x2-x1),len=8;svg.append(el('polygon',{points:`${x2},${y2} ${x2-len*Math.cos(a-.5)},${y2-len*Math.sin(a-.5)} ${x2-len*Math.cos(a+.5)},${y2-len*Math.sin(a+.5)}`,fill:color}))}
+function compass(svg,x,y,angle,scale=1){svg.append(el('circle',{cx:x,cy:y,r:23*scale,fill:'#fff',stroke:'#7897ad','stroke-width':2}));svg.append(el('circle',{cx:x,cy:y,r:3*scale,fill:'#526d80'}));const dx=15*scale*Math.cos(angle),dy=15*scale*Math.sin(angle);svg.append(el('polygon',{points:`${x+dx},${y+dy} ${x+7*scale*Math.cos(angle+2.5)},${y+7*scale*Math.sin(angle+2.5)} ${x+7*scale*Math.cos(angle-2.5)},${y+7*scale*Math.sin(angle-2.5)}`,fill:'#e74c3c'}));svg.append(el('polygon',{points:`${x-dx},${y-dy} ${x+7*scale*Math.cos(angle+Math.PI+2.5)},${y+7*scale*Math.sin(angle+Math.PI+2.5)} ${x+7*scale*Math.cos(angle+Math.PI-2.5)},${y+7*scale*Math.sin(angle+Math.PI-2.5)}`,fill:'#1769aa'}));}
+function magnet(svg,x,y,w,h,left='N',right='S'){svg.append(el('rect',{x,y,width:w/2,height:h,rx:5,fill:left==='N'?'#e74c3c':'#1769aa'}));svg.append(el('rect',{x:x+w/2,y,width:w/2,height:h,rx:5,fill:right==='N'?'#e74c3c':'#1769aa'}));addText(svg,x+w/4,y+h/2+7,left,22,'white','bold');addText(svg,x+3*w/4,y+h/2+7,right,22,'white','bold');}
+let showInd=true,showLines=true,showEarth=true,rightFlipped=false;
+function drawInd(){const s=document.getElementById('inductionSvg');s.replaceChildren();const strength=+strengthEl.value,x=+compassX.value,y=+compassY.value;document.getElementById('strengthVal').textContent=strength+'%';document.getElementById('xVal').textContent=x;document.getElementById('yVal').textContent=y;
+if(showInd){for(let i=0;i<7;i++){let yy=70+i*36;let d=`M 225 ${yy} C 280 ${yy-70} 520 ${yy-70} 575 ${yy} C 630 ${yy+70} 280 ${yy+70} 225 ${yy}`;s.append(el('path',{d,fill:'none',stroke:'#55a9dc','stroke-width':1.8,opacity:.75}));arrow(s,290,yy-18,325,yy-27,'#2c87c8',1.5)}}
+magnet(s,300,150,200,62,'N','S');addText(s,400,135,'ПОСТІЙНИЙ МАГНІТ',13,'#52738b','bold');
+let ang=Math.atan2((y-181),(x<400?x-300:x-500));if(x>=300&&x<=500)ang=(y<181?Math.PI/2:-Math.PI/2);if(x>500)ang=Math.atan2(y-181,x-500);if(x<300)ang=Math.atan2(181-y,300-x);if(!Number.isFinite(ang))ang=0;
+compass(s,x,y,ang,1);addText(s,x,y+40,'КОМПАС',12,'#526d80','bold');
+addText(s,400,335,`Умовна величина B: ${strength}%`,15,'#124b7d','bold');
+}
+const strengthEl=document.getElementById('strength'),compassX=document.getElementById('compassX'),compassY=document.getElementById('compassY');
+[strengthEl,compassX,compassY].forEach(e=>e.addEventListener('input',drawInd));
+document.getElementById('toggleIndLines').onclick=()=>{showInd=!showInd;document.getElementById('toggleIndLines').textContent=showInd?'Приховати лінії поля':'Показати лінії поля';drawInd()};
+document.getElementById('resetInd').onclick=()=>{strengthEl.value=60;compassX.value=400;compassY.value=115;showInd=true;document.getElementById('toggleIndLines').textContent='Приховати лінії поля';drawInd()};
+
+function drawLines(){const s=document.getElementById('linesSvg');s.replaceChildren();const gap=+gapEl.value,count=+lineCountEl.value;document.getElementById('gapVal').textContent=gap+' px';document.getElementById('countVal').textContent=count;
+const leftX=400-gap/2-115,rightX=400+gap/2+15;magnet(s,leftX,145,100,70,'S','N');magnet(s,rightX,145,100,70,rightFlipped?'S':'N',rightFlipped?'N':'S');
+if(showLines){for(let i=0;i<count;i++){let yy=180+(i-(count-1)/2)*15;let top=yy-25,bottom=yy+25;let col=rightFlipped?'#d58b2b':'#3194ce';let path;if(!rightFlipped){path=`M ${leftX+100} ${yy} C ${leftX+150} ${top} ${rightX-40} ${top} ${rightX} ${yy} C ${rightX+50} ${bottom} ${leftX+150} ${bottom} ${leftX+100} ${yy}`;}else{path=`M ${leftX+100} ${yy} C ${leftX+150} ${top-15} ${rightX-40} ${top-15} ${rightX} ${yy} C ${rightX+50} ${bottom+15} ${leftX+150} ${bottom+15} ${leftX+100} ${yy}`;}s.append(el('path',{d:path,fill:'none',stroke:col,'stroke-width':1.7,opacity:.85}));arrow(s,(leftX+rightX)/2-12,yy-3,(leftX+rightX)/2+12,yy-3,col,1.4)}}
+addText(s,400,60,'ЛІНІЇ МАГНІТНОГО ПОЛЯ',18,'#124b7d','bold');addText(s,leftX+50,240,'Магніт 1',13);addText(s,rightX+50,240,'Магніт 2',13);
+document.getElementById('linesNote').textContent=rightFlipped?'Навпроти однойменні полюси N і N: магніти відштовхуються, лінії не з’єднують полюси напряму.':'Навпроти різнойменні полюси N і S: лінії з’єднують полюси, магнітне поле між ними помітно сильніше.'}
+const gapEl=document.getElementById('gap'),lineCountEl=document.getElementById('lineCount');[gapEl,lineCountEl].forEach(e=>e.addEventListener('input',drawLines));
+document.getElementById('toggleLines').onclick=()=>{showLines=!showLines;document.getElementById('toggleLines').textContent=showLines?'Приховати силові лінії':'Показати силові лінії';drawLines()};
+document.getElementById('flipMagnet').onclick=()=>{rightFlipped=!rightFlipped;document.getElementById('flipMagnet').textContent=rightFlipped?'Повернути правий магніт назад':'Перевернути правий магніт';drawLines()};
+
+function drawEarth(){const s=document.getElementById('earthSvg');s.replaceChildren();const x=+earthX.value,y=+earthY.value;document.getElementById('earthXVal').textContent=x;document.getElementById('earthYVal').textContent=y;
+if(showEarth){for(let i=0;i<8;i++){let rx=105+i*18,ry=145+i*20;let p=el('ellipse',{cx:400,cy:210,rx,ry,fill:'none',stroke:'#4da4d8','stroke-width':1.5,opacity:.65,transform:'rotate(-18 400 210)'});s.append(p);}}
+s.append(el('circle',{cx:400,cy:210,r:94,fill:'#55b6d9',stroke:'#247da7','stroke-width':3}));
+s.append(el('path',{d:'M350 137 l25 12 10 25 -15 18 10 18 -22 19 -18 -25 6 -25 -14 -18z M420 135 l25 18 -8 20 20 14 -10 20 -23 -8 -10 -22 -15 -15z M425 226 l18 8 5 25 -22 23 -15 -16 4 -22z',fill:'#51a66e',stroke:'#368452','stroke-width':1}));
+s.append(el('ellipse',{cx:400,cy:210,rx:42,ry:94,fill:'none',stroke:'#e8f7ff','stroke-width':1.5,opacity:.7}));
+addText(s,400,95,'Географічна Північ',14,'#124b7d','bold');addText(s,400,330,'Географічний Південь',14,'#124b7d','bold');
+s.append(el('rect',{x:386,y:110,width:28,height:24,rx:5,fill:'#1769aa'}));addText(s,400,127,'S',15,'white','bold');s.append(el('rect',{x:386,y:286,width:28,height:24,rx:5,fill:'#e74c3c'}));addText(s,400,303,'N',15,'white','bold');
+let dx=x-400,dy=y-210;let ang=Math.atan2(-dy,dx); // dipole-like schematic direction
+if(Math.abs(dx)+Math.abs(dy)<15)ang=0;
+compass(s,x,y,ang,.9);addText(s,x,y+36,'КОМПАС',11,'#526d80','bold');
+addText(s,400,390,'Схематична модель дипольного поля Землі',14,'#124b7d','bold');
+}
+const earthX=document.getElementById('earthX'),earthY=document.getElementById('earthY');[earthX,earthY].forEach(e=>e.addEventListener('input',drawEarth));
+document.getElementById('toggleEarthLines').onclick=()=>{showEarth=!showEarth;document.getElementById('toggleEarthLines').textContent=showEarth?'Приховати лінії поля':'Показати лінії поля';drawEarth()};
+document.getElementById('resetEarth').onclick=()=>{earthX.value=650;earthY.value=205;showEarth=true;document.getElementById('toggleEarthLines').textContent='Приховати лінії поля';drawEarth()};
+document.getElementById('checkQuiz').onclick=()=>{const ans={q1:'b',q2:'b',q3:'a',q4:'b',q5:'a'};let score=0;for(const [q,a] of Object.entries(ans)){if(document.querySelector(`input[name="${q}"]:checked`)?.value===a)score++}document.getElementById('quizResult').textContent=`Ваш результат: ${score} із 5. `+(score===5?'Чудово! Усі відповіді правильні.':score>=3?'Добре! Переглянь матеріал і виправ помилки.':'Спробуй ще раз після повторення дослідів.');};
+document.getElementById('resetQuiz').onclick=()=>document.getElementById('quizResult').textContent='';
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t===b));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===b.dataset.tab));}));
+drawInd();drawLines();drawEarth();
+</script>
+</body>
+</html>
